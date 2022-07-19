@@ -1,7 +1,5 @@
 package com.kametguler.tutorial.controller;
 
-import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -16,78 +14,49 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kametguler.tutorial.model.City;
+import com.kametguler.tutorial.service.CityService;
+
+import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/cities")
+@AllArgsConstructor
 public class CityController {
-    private static final List<City> cities = new ArrayList<>();
 
-    public CityController() {
-        if (cities.isEmpty()) {
-            City c1 = new City();
-            c1.setCreated_at(new Date(0));
-            c1.setId("06");
-            c1.setName("Ankara");
-            City c2 = new City();
-            c2.setCreated_at(new Date(0));
-            c2.setId("34");
-            c2.setName("Istanbul");
-            City c3 = new City();
-            c3.setId("44");
-            c3.setName("Malatya");
-            City c4 = new City(new Date(0), "07", "Antalya");
-
-            CityController.cities.add(c1);
-            CityController.cities.add(c2);
-            CityController.cities.add(c3);
-            CityController.cities.add(c4);
-        }
-    }
+    private final CityService cityService;
 
     @GetMapping
     public ResponseEntity<List<City>> getCities() {
 
-        return ResponseEntity.ok(CityController.cities);
+        return ResponseEntity.ok(cityService.getAllCities());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<City> getCity(@PathVariable String id) {
+    public ResponseEntity<City> getCitById(@PathVariable String id) {
 
-        City cty = this.getCityById(id);
-
-        return ResponseEntity.ok(cty);
+        return new ResponseEntity<>(this.cityService.getCity(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<City> addCity(@RequestBody City city) {
-        city.setCreated_at(new Date(0));
-        CityController.cities.add(city);
+    public ResponseEntity<City> addNewCity(@RequestBody City city) {
 
-        return new ResponseEntity<>(city, HttpStatus.CREATED);
+        return new ResponseEntity<>(this.cityService.addCity(city), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<City> updateCity(@RequestBody City city, @PathVariable String id) {
-        City update_city = this.getCityById(id);
+    public ResponseEntity<City> updateCityById(@RequestBody City city, @PathVariable String id) {
 
-        update_city.setCreated_at(city.getCreated_at());
-        update_city.setId(city.getId());
-        update_city.setName(city.getName());
-
-        return new ResponseEntity<City>(update_city, HttpStatus.OK);
+        return new ResponseEntity<City>(this.cityService.updateCity(city, id), HttpStatus.OK);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCity(@PathVariable String id) {
-        City delete_City = this.getCityById(id);
-        CityController.cities.remove(delete_City);
-
+    public ResponseEntity<Void> deleteCityById(@PathVariable String id) {
+        this.cityService.deleteCity(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    private City getCityById(String id) {
-        return CityController.cities.stream().filter(city -> city.getId().equals(id)).findFirst()
-                .orElseThrow(() -> new RuntimeException("City is not found!"));
-    }
+    // private City getCityById(String id) {
+    // return this.cityService.getCityById(id);
+    // }
 }

@@ -1,6 +1,6 @@
 package com.kametguler.tutorial.model;
 
-import java.sql.Date;
+import org.springframework.data.annotation.Id;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,8 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class City {
-    private Date created_at;
+
+    @Id
     private String id;
+
+    // private Date created_at = new Date(0);
+
     private String name;
 
 }
